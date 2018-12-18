@@ -20,4 +20,12 @@ public class LoadBalanceController {
 	public String getHelloFromApp2() {
 		return restTemplate.getForObject("http://app2/hello", String.class);
 	}
+
+	@Resource
+	private App2Service app2Service;
+
+	@RequestMapping("/getHello2")
+	public String getHelloFromApp22() {
+		return app2Service.getHelloFromApp2();
+	}
 }
