@@ -26,6 +26,27 @@ Zuul自带负载均衡
 
 本demo采用本地git仓库的形式。
 
+### 中心化配置
+手动刷新每个应用：[https://spring.io/guides/gs/centralized-configuration/](https://spring.io/guides/gs/centralized-configuration/)
+
+使用spring actuator刷新：
+```shell 
+$ curl localhost:8083/actuator/refresh -d {} -H "Content-Type: application/json"
+```
+### 批量更新
+[https://www.cnblogs.com/wslook/p/9994915.html](https://www.cnblogs.com/wslook/p/9994915.html)
+使用bus批量更新配置，采用默认的RabbitMQ，使用docker pull一个：
+```shell 
+docker run -d --hostname my-rabbit --name rabbit -p 15672:15672 -p 5672:5672 rabbitmq:3-management
+```
+[https://my.oschina.net/u/2518341/blog/2989307](https://my.oschina.net/u/2518341/blog/2989307)
+
+刷新接口：只需要刷新config server就行,注意是post请求
+```shell 
+$ curl localhost:8888/actuator/bus-refresh -d {} -H "Content-Type: application/json"
+```
+
+
 ## gateway
 [https://spring.io/guides/gs/gateway/](https://spring.io/guides/gs/gateway/)
 
