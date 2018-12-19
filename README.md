@@ -72,4 +72,15 @@ Content-Length: 8
 fallback
 ```
 
+## 分布式跟踪
+基于spring cloud sleuth，需要有一个zipkin服务器在运行，推荐用docker运行。
+
+```shell 
+docker run -d -p 9411:9411 openzipkin/zipkin
+```
+
+参考文章：[https://my.oschina.net/orrin/blog/2906795](https://my.oschina.net/orrin/blog/2906795)
+
+本demo中，app1，app2，router添加了跟踪依赖。
+
 
