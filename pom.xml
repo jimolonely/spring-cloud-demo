@@ -5,6 +5,7 @@
 
     <groupId>com.jimo</groupId>
     <artifactId>sc-demo</artifactId>
+    <packaging>pom</packaging>
     <version>0.0.1-SNAPSHOT</version>
     <name>sc-demo</name>
     <description>Demo project for Spring Boot</description>
@@ -55,6 +56,7 @@
         <module>app1</module>
         <module>app2</module>
         <module>router</module>
+        <module>reactor-demo</module>
     </modules>
 
 </project>
