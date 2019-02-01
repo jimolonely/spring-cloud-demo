@@ -3,6 +3,7 @@ package com.jimo;
 import org.junit.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
 
 import java.time.Duration;
@@ -170,6 +171,44 @@ public class FluxDemoTest {
 		Flux.combineLatest(Arrays::toString, Flux.interval(Duration.ofMillis(100)).take(5),
 				Flux.interval(Duration.ofMillis(50)).take(5))
 				.toStream().forEach(System.out::println);
+	}
+
+	@Test
+	public void testMessage() {
+//		Flux.just(1, 2).concatWith(Mono.error(IllegalArgumentException::new))
+//				.subscribe(System.out::println);
+
+		Flux.just(1, 2).concatWith(Mono.error(IllegalArgumentException::new))
+				.onErrorReturn(0)
+				.subscribe(System.out::println);
+
+		Flux.just(1, 2).concatWith(Mono.error(IllegalArgumentException::new))
+				.onErrorResume(e -> {
+					if (e instanceof IllegalArgumentException) {
+						return Mono.just(0);
+					} else if (e instanceof IllegalStateException) {
+						return Mono.just(-1);
+					}
+					return Mono.empty();
+				}).subscribe(System.out::println);
+
+		Flux.just(1, 2).concatWith(Mono.error(IllegalArgumentException::new))
+				.retry(1).subscribe(System.out::println);
+	}
+
+	@Test
+	public void testScheduler() {
+		Flux.create(sink -> {
+			sink.next(Thread.currentThread().getName());
+			sink.complete();
+		})
+				.publishOn(Schedulers.single())
+				.map(x -> String.format("[%s]%s", Thread.currentThread().getName(), x))
+				.publishOn(Schedulers.elastic())
+				.map(x -> String.format("[%s]%s", Thread.currentThread().getName(), x))
+				.subscribeOn(Schedulers.parallel())
+				.toStream()
+				.forEach(System.out::println);
 	}
 }
 
