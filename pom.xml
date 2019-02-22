@@ -57,6 +57,7 @@
         <module>app2</module>
         <module>router</module>
         <module>reactor-demo</module>
+        <module>spring-make</module>
     </modules>
 
 </project>
