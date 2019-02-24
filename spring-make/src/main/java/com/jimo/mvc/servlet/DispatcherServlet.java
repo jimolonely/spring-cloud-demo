@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.*;
@@ -53,7 +54,7 @@ public class DispatcherServlet extends HttpServlet {
 	}
 
 	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		try {
 			doDispatch(req, resp);
 		} catch (Exception e) {
@@ -139,7 +140,48 @@ public class DispatcherServlet extends HttpServlet {
 		}
 	}
 
-	private void doDispatch(HttpServletRequest req, HttpServletResponse resp) {
+	private void doDispatch(HttpServletRequest req, HttpServletResponse resp)
+			throws IOException, InvocationTargetException, IllegalAccessException {
+		if (handlerMapping.isEmpty()) {
+			return;
+		}
+		String requestUrl = req.getRequestURI();
+		String contextPath = req.getContextPath();
+		requestUrl = requestUrl.replace(contextPath, "").replaceAll("/+", "/");
+		if (!handlerMapping.containsKey(requestUrl)) {
+			resp.getWriter().write("404! 找不到URI：" + requestUrl);
+			return;
+		}
+		Method method = handlerMapping.get(requestUrl);
 
+		Object result = method.invoke(controllerMap.get(requestUrl), getParams(method, req, resp));
+		Class<?> returnType = method.getReturnType();
+		System.out.println("returnType:" + returnType);
+		if (returnType.equals(String.class)) {
+			resp.getWriter().write(result.toString());
+		}
+	}
+
+	private Object[] getParams(Method method, HttpServletRequest req, HttpServletResponse resp) {
+		Class<?>[] parameterTypes = method.getParameterTypes();
+		Map<String, String[]> parameterMap = req.getParameterMap();
+		Object[] params = new Object[parameterTypes.length];
+		for (int i = 0; i < parameterTypes.length; i++) {
+			Class<?> type = parameterTypes[i];
+			String name = type.getSimpleName();
+			if ("HttpServletRequest".equals(name)) {
+				params[i] = req;
+			} else if ("HttpServletResponse".equals(name)) {
+				params[i] = resp;
+			} else if ("String".equals(name)) {
+				for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
+					String s = Arrays.toString(entry.getValue());
+					System.out.println("params s:" + s);
+					params[i] = s.replaceAll("\\[|\\]", "")
+							.replaceAll(",\\s", ",");
+				}
+			}
+		}
+		return params;
 	}
 }

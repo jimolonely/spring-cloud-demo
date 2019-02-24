@@ -11,6 +11,8 @@
 
     <artifactId>spring-make</artifactId>
 
+    <packaging>war</packaging>
+
     <dependencies>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -20,4 +22,7 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <finalName>mvc</finalName>
+    </build>
 </project>
